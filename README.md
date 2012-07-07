@@ -1,6 +1,10 @@
 GeoHash.js
 ----------
 
+
+    npm install geohash
+
+
 SUMMARY
 =======
 
@@ -44,28 +48,20 @@ MORE INFORMATION
 [GeoHash on Wikipedia](http://en.wikipedia.org/wiki/Geohash)
 [GeoHash gem on Rubyforge](http://geohash.rubyforge.org/)
 
-THIS PROJECT
-============
-
-[Demo Site](http://openlocation.org/geohash/geohash-js)
-[Source Code](http://github.com/davetroy/geohash-js/tree/master)
-
-Please contact me at dave at roundhousetech.com with any questions you may have about this code;  right now this is experimental.  The bounding box code found here will be added to the Ruby gem soon.
-
-
 USE AS COMMONJS MODULE
 ======================
 
 To use this in a CommonJS capable system use the following code snippet to generate GeoHashes:
 
 `
-  var GeoHash = require("./geohash");
+  var GeoHash = require("geohash");
   var hash = GeoHash.encodeGeoHash(38.897, -77.036); // lat, lng
   
 `
 
 
-Geohash Javascript Demonstration
+Geohash.js
 (c) 2008 David Troy
 Refactored to CommonJS module by Chris Williams (c) 2010
+Further forked by Max Ogden (c) 2012
 Released under the MIT License

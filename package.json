@@ -4,6 +4,5 @@
     "keywords": ["geocode", "geohash", "geolocation"],
     "author": ["Chris Williams", "David Troy"],
     "email": "chris@iterativedesigns.com",
-    "version": "0.0.1",
-    "main": "lib/geohash"
+    "version": "0.0.1"
 }
