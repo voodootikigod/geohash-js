@@ -175,6 +175,16 @@ GeoHash.prototype.hashLengthForWidthHeight = function(width, height) {
   return self.MAX_PRECISION
 }
 
+GeoHash.prototype.subGeohashes = function (baseGeohash) {
+  var self = this
+  var hashes = []
+  for (var i = 0; i < self.BASE32.length; i++) {
+    var c = self.BASE32[i]
+    hashes.push(baseGeohash + c)
+  }
+  return hashes
+}
+
 GeoHash.prototype.geohashRange = function (lat, lon, radius) {
   var diff = radius / 111034 // convert from meters to degrees
   diff = diff / 2 // square diameter -> radius
