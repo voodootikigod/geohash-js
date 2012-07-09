@@ -6,11 +6,11 @@
 // Distributed under the MIT License
 
 function GeoHash() {
-  this.BITS = [16, 8, 4, 2, 1];
-  this.MAX_PRECISION = 24; //DWS: I forget what level results in needless more precision but it's about this
+  this.BITS = [16, 8, 4, 2, 1]
+  this.MAX_PRECISION = 11
   
   
-  this.BASE32 =                         "0123456789bcdefghjkmnpqrstuvwxyz";
+  this.BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz"
   var NEIGHBORS = { right  : { even :  "bc01fg45238967deuvhjyznpkmstqrwx" },
                 left   : { even :  "238967debc01fg45kmstqrwxuvhjyznp" },
                 top    : { even :  "p0r21436x8zb9dcf5h7kjnmqesgutwvy" },
@@ -41,84 +41,90 @@ GeoHash.prototype.refineInterval = function (interval, cd, mask) {
 
 GeoHash.prototype.encodeGeoHash = function (latitude, longitude) {
   var self = this
-  var is_even=1;
-  var i=0;
-  var lat = []; var lon = [];
-  var bit=0;
-  var ch=0;
-  var precision = 12;
-  geohash = "";
+  var isEven = 1
+  var i = 0
+  var lat = []
+  var lon = []
+  var bit = 0
+  var ch = 0
+  geohash = ""
 
-  lat[0] = -90.0;  lat[1] = 90.0;
-  lon[0] = -180.0; lon[1] = 180.0;
+  lat[0] = -90.0
+  lat[1] = 90.0
+  lon[0] = -180.0
+  lon[1] = 180.0
 
-  while (geohash.length < precision) {
-    if (is_even) {
-      mid = (lon[0] + lon[1]) / 2;
+  while (geohash.length < self.MAX_PRECISION) {
+    if (isEven) {
+      mid = (lon[0] + lon[1]) / 2
       if (longitude > mid) {
-        ch |= self.BITS[bit];
-        lon[0] = mid;
+        ch |= self.BITS[bit]
+        lon[0] = mid
       } else
-        lon[1] = mid;
+        lon[1] = mid
     } else {
-      mid = (lat[0] + lat[1]) / 2;
+      mid = (lat[0] + lat[1]) / 2
       if (latitude > mid) {
-        ch |= self.BITS[bit];
-        lat[0] = mid;
+        ch |= self.BITS[bit]
+        lat[0] = mid
       } else
-        lat[1] = mid;
+        lat[1] = mid
     }
 
-    is_even = !is_even;
+    isEven = !isEven
     if (bit < 4)
-      bit++;
+      bit++
     else {
-      geohash += self.BASE32[ch];
-      bit = 0;
-      ch = 0;
+      geohash += self.BASE32[ch]
+      bit = 0
+      ch = 0
     }
   }
-  return geohash;
+  return geohash
 }
 
 GeoHash.prototype.decodeGeoHash =  function (geohash) {
   var self = this
-  var is_even = 1;
-  var lat = []; var lon = [];
-  lat[0] = -90.0;  lat[1] = 90.0;
-  lon[0] = -180.0; lon[1] = 180.0;
-  lat_err = 90.0;  lon_err = 180.0;
+  var isEven = 1
+  var lat = []
+  var lon = []
+  lat[0] = -90.0
+  lat[1] = 90.0
+  lon[0] = -180.0
+  lon[1] = 180.0
+  lat_err = 90.0
+  lon_err = 180.0
 
-  for (i=0; i<geohash.length; i++) {
-    c = geohash[i];
-    cd = self.BASE32.indexOf(c);
-    for (j=0; j<5; j++) {
-      mask = self.BITS[j];
-      if (is_even) {
-        lon_err /= 2;
-        self.refineInterval(lon, cd, mask);
+  for (i = 0; i < geohash.length; i++) {
+    c = geohash[i]
+    cd = self.BASE32.indexOf(c)
+    for (j = 0; j < 5; j++) {
+      mask = self.BITS[j]
+      if (isEven) {
+        lon_err /= 2
+        self.refineInterval(lon, cd, mask)
       } else {
-        lat_err /= 2;
-        self.refineInterval(lat, cd, mask);
+        lat_err /= 2
+        self.refineInterval(lat, cd, mask)
       }
-      is_even = !is_even;
+      isEven = !isEven
     }
   }
-  lat[2] = (lat[0] + lat[1])/2;
-  lon[2] = (lon[0] + lon[1])/2;
+  lat[2] = (lat[0] + lat[1])/2
+  lon[2] = (lon[0] + lon[1])/2
 
-  return { latitude: lat, longitude: lon};
+  return { latitude: lat, longitude: lon}
 }
 
 GeoHash.prototype.calculateAdjacent = function (srcHash, dir) {
   var self = this
-  srcHash = srcHash.toLowerCase();
-  var lastChr = srcHash.charAt(srcHash.length-1);
-  var type = (srcHash.length % 2) ? 'odd' : 'even';
-  var base = srcHash.substring(0,srcHash.length-1);
-  if (self.BORDERS[dir][type].indexOf(lastChr)!=-1)
-    base = self.calculateAdjacent(base, dir);
-  return base + self.BASE32[self.NEIGHBORS[dir][type].indexOf(lastChr)];
+  srcHash = srcHash.toLowerCase()
+  var lastChr = srcHash.charAt(srcHash.length-1)
+  var type = (srcHash.length % 2) ? 'odd' : 'even'
+  var base = srcHash.substring(0, srcHash.length - 1)
+  if (self.BORDERS[dir][type].indexOf(lastChr) != -1)
+    base = self.calculateAdjacent(base, dir)
+  return base + self.BASE32[self.NEIGHBORS[dir][type].indexOf(lastChr)]
 }
 
 GeoHash.prototype.neighbors = function (srcHash) {
@@ -133,19 +139,21 @@ GeoHash.prototype.neighbors = function (srcHash) {
   return neighbors
 }
 
-// 
-// GeoHash.prototype.buildLengthToDimensionTable = function() {
-//   hashLenToLatHeight = new double[self.MAX_PRECISION +1]
-//   hashLenToLonWidth = new double[self.MAX_PRECISION +1]
-//   hashLenToLatHeight[0] = 90 * 2
-//   hashLenToLonWidth[0] = 180 * 2
-//   var even = false
-//   for(int i = 1; i <= self.MAX_PRECISION; i++) {
-//     hashLenToLatHeight[i] = hashLenToLatHeight[i-1]/(even?8:4);
-//     hashLenToLonWidth[i] = hashLenToLonWidth[i-1]/(even?4:8);
-//     even = ! even;
-//   }
-// }
+
+GeoHash.prototype.buildLengthToDimensionTables = function() {
+  var self = this
+  var hashLenToLatHeight = []
+  var hashLenToLonWidth = []
+  hashLenToLatHeight[0] = 90 * 2
+  hashLenToLonWidth[0] = 180 * 2
+  var even = false
+  for(var i = 1; i <= self.MAX_PRECISION; i++) {
+    hashLenToLatHeight[i] = hashLenToLatHeight[i-1] / (even ? 8 : 4)
+    hashLenToLonWidth[i] = hashLenToLonWidth[i-1] / (even ? 4 : 8 )
+    even = !even
+  }
+  return {height: hashLenToLatHeight, width: hashLenToLonWidth}
+}
 
 GeoHash.prototype.geohashRange = function (lat, lon, radius) {
   var diff = radius / 111034 // convert from meters to degrees
