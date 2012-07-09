@@ -175,6 +175,10 @@ GeoHash.prototype.hashLengthForWidthHeight = function(width, height) {
   return self.MAX_PRECISION
 }
 
+GeoHash.prototype.degreesSizeForHashLength = function(length) {
+  return [this.latitudeHeights[length], this.longitudeWidths[length]]
+}
+
 GeoHash.prototype.subGeohashes = function (baseGeohash) {
   var self = this
   var hashes = []
