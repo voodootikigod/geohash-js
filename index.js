@@ -32,6 +32,10 @@ function GeoHash() {
   
   this.NEIGHBORS = NEIGHBORS
   this.BORDERS = BORDERS
+
+  var dimensionTables = this.buildLengthToDimensionTables(this.MAX_PRECISION)
+  this.latitudeHeights = dimensionTables.latitudeHeights
+  this.longitudeWidths = dimensionTables.longitudeWidths
 }
 
 GeoHash.prototype.refineInterval = function (interval, cd, mask) {
@@ -140,19 +144,35 @@ GeoHash.prototype.neighbors = function (srcHash) {
 }
 
 
-GeoHash.prototype.buildLengthToDimensionTables = function() {
+GeoHash.prototype.buildLengthToDimensionTables = function(precision) {
   var self = this
   var hashLenToLatHeight = []
   var hashLenToLonWidth = []
   hashLenToLatHeight[0] = 90 * 2
   hashLenToLonWidth[0] = 180 * 2
   var even = false
-  for(var i = 1; i <= self.MAX_PRECISION; i++) {
+  for(var i = 1; i <= precision; i++) {
     hashLenToLatHeight[i] = hashLenToLatHeight[i-1] / (even ? 8 : 4)
     hashLenToLonWidth[i] = hashLenToLonWidth[i-1] / (even ? 4 : 8 )
     even = !even
   }
-  return {height: hashLenToLatHeight, width: hashLenToLonWidth}
+  return {latitudeHeights: hashLenToLatHeight, longitudeWidths: hashLenToLonWidth}
+}
+
+GeoHash.prototype.hashLengthForWidthHeight = function(width, height) {
+  var self = this
+  //loop through hash length arrays from beginning till we find one.
+  var length = false
+  for(var len = 1; len <= self.MAX_PRECISION; len++) {
+    var latHeight = self.latitudeHeights[len]
+    var lonWidth = self.longitudeWidths[len]
+    if (latHeight < height || lonWidth < width) {
+      length = len - 1 //previous length is big enough to encompass specified width & height
+      len = self.MAX_PRECISION
+    }
+  }
+  if (length) return length
+  return self.MAX_PRECISION
 }
 
 GeoHash.prototype.geohashRange = function (lat, lon, radius) {
