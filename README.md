@@ -54,8 +54,8 @@ USE AS COMMONJS MODULE
 To use this in a CommonJS capable system use the following code snippet to generate GeoHashes:
 
 `
-  var GeoHash = require("geohash");
-  var hash = GeoHash.encodeGeoHash(38.897, -77.036); // lat, lng
+  var geohash = require("geohash")
+  geohash.encode(38.897, -77.036); // lat, lng
   
 `
 

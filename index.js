@@ -43,7 +43,7 @@ GeoHash.prototype.refineInterval = function (interval, cd, mask) {
   else interval[1] = (interval[0] + interval[1])/2
 }
 
-GeoHash.prototype.encodeGeoHash = function (latitude, longitude) {
+GeoHash.prototype.encode = function (latitude, longitude) {
   var self = this
   var isEven = 1
   var i = 0
@@ -87,7 +87,7 @@ GeoHash.prototype.encodeGeoHash = function (latitude, longitude) {
   return geohash
 }
 
-GeoHash.prototype.decodeGeoHash =  function (geohash) {
+GeoHash.prototype.decode =  function (geohash) {
   var self = this
   var isEven = 1
   var lat = []
@@ -120,14 +120,14 @@ GeoHash.prototype.decodeGeoHash =  function (geohash) {
   return { latitude: lat, longitude: lon}
 }
 
-GeoHash.prototype.calculateAdjacent = function (srcHash, dir) {
+GeoHash.prototype.adjacent = function (srcHash, dir) {
   var self = this
   srcHash = srcHash.toLowerCase()
   var lastChr = srcHash.charAt(srcHash.length-1)
   var type = (srcHash.length % 2) ? 'odd' : 'even'
   var base = srcHash.substring(0, srcHash.length - 1)
   if (self.BORDERS[dir][type].indexOf(lastChr) != -1)
-    base = self.calculateAdjacent(base, dir)
+    base = self.adjacent(base, dir)
   return base + self.BASE32[self.NEIGHBORS[dir][type].indexOf(lastChr)]
 }
 
@@ -136,9 +136,9 @@ GeoHash.prototype.neighbors = function (srcHash) {
   var neighbors = []
   var directions = [['top', 'right'], ['right', 'bottom'], ['bottom', 'left'], ['left', 'top']]
   directions.forEach(function(dir) {
-    var point = self.calculateAdjacent(srcHash, dir[0])
+    var point = self.adjacent(srcHash, dir[0])
     neighbors.push(point)
-    neighbors.push(self.calculateAdjacent(point, dir[1]))
+    neighbors.push(self.adjacent(point, dir[1]))
   })
   return neighbors
 }
@@ -159,7 +159,7 @@ GeoHash.prototype.buildLengthToDimensionTables = function(precision) {
   return {latitudeHeights: hashLenToLatHeight, longitudeWidths: hashLenToLonWidth}
 }
 
-GeoHash.prototype.hashLengthForWidthHeight = function(width, height) {
+GeoHash.prototype.hashLength = function(width, height) {
   var self = this
   //loop through hash length arrays from beginning till we find one.
   var length = false
@@ -179,7 +179,7 @@ GeoHash.prototype.degreesSizeForHashLength = function(length) {
   return [this.latitudeHeights[length], this.longitudeWidths[length]]
 }
 
-GeoHash.prototype.subGeohashes = function (baseGeohash) {
+GeoHash.prototype.subs = function (baseGeohash) {
   var self = this
   var hashes = []
   for (var i = 0; i < self.BASE32.length; i++) {
@@ -187,14 +187,6 @@ GeoHash.prototype.subGeohashes = function (baseGeohash) {
     hashes.push(baseGeohash + c)
   }
   return hashes
-}
-
-GeoHash.prototype.geohashRange = function (lat, lon, radius) {
-  var diff = radius / 111034 // convert from meters to degrees
-  diff = diff / 2 // square diameter -> radius
-  var upper = this.encodeGeoHash(lat + diff, lon + diff)
-  var lower = this.encodeGeoHash(lat - diff, lon - diff)
-  return [lower, upper]  
 }
 
 module.exports = new GeoHash()
